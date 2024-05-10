@@ -3,11 +3,10 @@ interface ValidationError {
   property: string;
   value?: any;
   constraints?: {
-      [type: string]: string;
+    [type: string]: string;
   };
   children?: ValidationError[];
-  contexts?: {
-  };
+  contexts?: {};
 }
 
 export interface UpdateInfoRequest {
@@ -31,3 +30,10 @@ interface BaseResponseError extends BaseResponseInteface {
 }
 
 export type BaseResponse = BaseResponseSuccess | BaseResponseError;
+
+export type FormValues = {
+  name: string;
+  age: number;
+  married: boolean | null;
+  dateOfBirth: string;
+};
