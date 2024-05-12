@@ -37,3 +37,11 @@ export type FormValues = {
   married: boolean | null;
   dateOfBirth: string;
 };
+
+export enum FormStatus {
+  IDLE,
+  LOADING,
+  ERROR,
+  VALID,
+  INVALID,
+}
