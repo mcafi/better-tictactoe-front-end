@@ -3,6 +3,8 @@ import { FormStatus, FormValues, ValidationError } from "../interfaces";
 import { getDefaultFormValues, getValidationErrorMessage } from "../utilities";
 import "../style/Validation.css";
 import { validateForm } from "../api/validationApi";
+import { InputWrapper } from "../components/InputWrapper";
+import { LoadingStatus } from "../components/LoadingStatus";
 
 export function Validation() {
   const [formValues, setFormValues] = useState<FormValues>(
@@ -53,80 +55,89 @@ export function Validation() {
 
   return (
     <div className="page">
-      <h1>Validation</h1>
-      {nameError}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="Name"
-            value={formValues.name}
-            onChange={(event) =>
-              setFormValues({ ...formValues, name: event.target.value })
-            }
-          />
-        </div>
-        <div>
-          <label htmlFor="age">Age</label>
-          <input
-            type="number"
-            id="age"
-            name="age"
-            placeholder="Age"
-            value={formValues.age}
-            onChange={(event) =>
-              setFormValues({
-                ...formValues,
-                age: parseInt(event.target.value),
-              })
-            }
-          />
-        </div>
-        <div>
-          <label htmlFor="married">Married</label>
-          <select
-            id="married"
-            name="married"
-            value={String(formValues.married)}
-            onChange={(event) =>
-              setFormValues({
-                ...formValues,
-                married:
-                  event.target.value === ""
-                    ? null
-                    : event.target.value === "true",
-              })
-            }
-          >
-            <option value="">Choose an option</option>
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="date">Date of Birth</label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formValues.dateOfBirth}
-            onChange={(event) =>
-              setFormValues({
-                ...formValues,
-                dateOfBirth: event.target.value,
-              })
-            }
-          />
-        </div>
-        <button type="submit" disabled={status === FormStatus.LOADING}>
-          Test
-        </button>
-        {status === FormStatus.LOADING && <div>Loading...</div>}
-        {status}
-      </form>
+      <div className="container">
+        <h1>Validation</h1>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <InputWrapper
+              name="name"
+              label="Name"
+              placeholder="Name"
+              value={formValues.name}
+              onUpdateValue={(value) =>
+                setFormValues({ ...formValues, name: value })
+              }
+              errorMessage={nameError}
+              showErrorMessage={status === FormStatus.INVALID}
+            />
+          </div>
+          <div>
+            <InputWrapper
+              type="number"
+              name="age"
+              label="Age"
+              placeholder="Age"
+              value={String(formValues.age)}
+              onUpdateValue={(value) =>
+                setFormValues({ ...formValues, age: parseInt(value) })
+              }
+              errorMessage={ageError}
+              showErrorMessage={status === FormStatus.INVALID}
+            />
+          </div>
+          <div>
+            <label htmlFor="married">Married</label>
+            <select
+              id="married"
+              name="married"
+              value={String(formValues.married)}
+              className={
+                marriedError && status === FormStatus.INVALID
+                  ? "input-error"
+                  : ""
+              }
+              onChange={(event) =>
+                setFormValues({
+                  ...formValues,
+                  married:
+                    event.target.value === ""
+                      ? null
+                      : event.target.value === "true",
+                })
+              }
+            >
+              <option value="">Choose an option</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+            <p className="validation validation-error">
+              {marriedError && status === FormStatus.INVALID ? (
+                marriedError
+              ) : (
+                <span>&nbsp;</span>
+              )}
+            </p>
+          </div>
+          <div>
+            <InputWrapper
+              type="date"
+              name="dateOfBirth"
+              label="Date of Birth"
+              placeholder="Date of Birth"
+              value={formValues.dateOfBirth}
+              onUpdateValue={(value) =>
+                setFormValues({ ...formValues, dateOfBirth: value })
+              }
+              errorMessage={dateOfBirthError}
+              showErrorMessage={status === FormStatus.INVALID}
+            />
+          </div>
+          <button type="submit" disabled={status === FormStatus.LOADING}>
+            Validate data
+          </button>
+          <LoadingStatus formStatus={status} />
+        </form>
+      </div>
     </div>
   );
 }
