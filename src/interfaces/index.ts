@@ -1,4 +1,4 @@
-interface ValidationError {
+export interface ValidationError {
   target?: object;
   property: string;
   value?: any;

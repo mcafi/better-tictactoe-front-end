@@ -1,31 +1,51 @@
-import { useEffect, useState } from "react";
-import { BaseResponse, FormStatus, FormValues } from "../interfaces";
-import { getDefaultFormValues } from "../utilities";
+import { useEffect, useMemo, useState } from "react";
+import { FormStatus, FormValues, ValidationError } from "../interfaces";
+import { getDefaultFormValues, getValidationErrorMessage } from "../utilities";
 import "../style/Validation.css";
+import { validateForm } from "../api/validationApi";
 
 export function Validation() {
   const [formValues, setFormValues] = useState<FormValues>(
     getDefaultFormValues()
   );
   const [status, setStatus] = useState<FormStatus>(FormStatus.IDLE);
+  const [errors, setErrors] = useState<ValidationError[]>([]);
 
-  const test = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus(FormStatus.LOADING);
     try {
-      const res = await fetch("http://localhost:3001/info/validate-form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formValues),
-      });
-      const data: BaseResponse = await res.json();
-      console.log(data);
+      const res = await validateForm(formValues);
+      if (res.success) {
+        setStatus(FormStatus.VALID);
+      } else {
+        setStatus(FormStatus.INVALID);
+        setErrors(res.errors);
+      }
     } catch (error) {
       setStatus(FormStatus.ERROR);
     }
   };
+
+  const nameError = useMemo(() => {
+    if (!errors.length || status !== FormStatus.INVALID) return null;
+    return getValidationErrorMessage("name", errors);
+  }, [errors, status]);
+
+  const ageError = useMemo(() => {
+    if (!errors.length || status !== FormStatus.INVALID) return null;
+    return getValidationErrorMessage("age", errors);
+  }, [errors, status]);
+
+  const marriedError = useMemo(() => {
+    if (!errors.length || status !== FormStatus.INVALID) return null;
+    return getValidationErrorMessage("married", errors);
+  }, [errors, status]);
+
+  const dateOfBirthError = useMemo(() => {
+    if (!errors.length || status !== FormStatus.INVALID) return null;
+    return getValidationErrorMessage("dateOfBirth", errors);
+  }, [errors, status]);
 
   useEffect(() => {
     setStatus(FormStatus.IDLE);
@@ -34,7 +54,8 @@ export function Validation() {
   return (
     <div className="page">
       <h1>Validation</h1>
-      <form onSubmit={test}>
+      {nameError}
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Name</label>
           <input
